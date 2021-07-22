@@ -10,17 +10,11 @@ def check_mime(file):
 
 @csrf_exempt
 def post_image(request):
-    image_name = request.FILES['image_file'].name
-    blank_spaces = re.findall(r'[^\S\n\t]+',image_name)
-    if len(blank_spaces) == 0:
-        image_file = request.FILES['image_file'].file.read()
-        mime_type = request.FILES['image_file'].content_type
-        Post.objects.create(image=image_file, mime_type=mime_type)
-        return HttpResponse(status=204)
-    else:
-        return HttpResponseBadRequest(
-            'The name of the image contains blank spaces. Call Taylor Swift to fill them',
-            status=400)
+    image = request.FILES['image_file']
+    image.name = image.name.replace(' ', '-')
+    image_file = image.file.read()
+    Post.objects.create(image=image_file, mime_type=image.content_type)
+    return HttpResponse(status=204)
 
 
 def get_image(request, pk):
